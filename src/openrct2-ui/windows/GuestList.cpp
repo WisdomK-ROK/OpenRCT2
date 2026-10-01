@@ -26,6 +26,7 @@
 #include <openrct2/localisation/Formatter.h>
 #include <openrct2/localisation/Formatting.h>
 #include <openrct2/object/PeepAnimationsObject.h>
+#include <openrct2/peep/PeepActionFormat.h>
 #include <openrct2/peep/PeepThoughts.h>
 #include <openrct2/ride/RideData.h>
 #include <openrct2/ui/WindowManager.h>
@@ -194,8 +195,8 @@ namespace OpenRCT2::Ui::Windows
                     if (guestRide != nullptr)
                     {
                         ft.Add<StringId>(
-                            guestRide->getRideTypeDescriptor().flags.has(RtdFlag::describeAsInside) ? STR_IN_RIDE
-                                                                                                    : STR_ON_RIDE);
+                            guestRide->getRideTypeDescriptor().flags.has(RtdFlag::describeAsInside) ? STR_GUESTS_IN_RIDE
+                                                                                                    : STR_GUESTS_ON_RIDE);
                         guestRide->formatNameTo(ft);
 
                         _selectedFilter = GuestFilterType::guests;
@@ -210,7 +211,7 @@ namespace OpenRCT2::Ui::Windows
                     auto guestRide = GetRide(RideId::FromUnderlying(index));
                     if (guestRide != nullptr)
                     {
-                        ft.Add<StringId>(STR_QUEUING_FOR);
+                        ft.Add<StringId>(STR_GUESTS_QUEUING_FOR);
                         guestRide->formatNameTo(ft);
 
                         _selectedFilter = GuestFilterType::guests;
@@ -535,7 +536,7 @@ namespace OpenRCT2::Ui::Windows
                     {
                         if (i == 0)
                         {
-                            auto guest = getGameState().entities.GetEntity<Guest>(guestItem.Id);
+                            auto guest = getGameState().entities.getEntity<Guest>(guestItem.Id);
                             if (guest != nullptr)
                             {
                                 GuestOpen(guest);
@@ -595,14 +596,14 @@ namespace OpenRCT2::Ui::Windows
 
                 for (auto peep : EntityList<Guest>())
                 {
-                    getGameState().entities.EntitySetFlashing(peep, false);
+                    getGameState().entities.entitySetFlashing(peep, false);
                     if (peep->outsideOfPark)
                         continue;
                     if (_selectedFilter)
                     {
                         if (!IsPeepInFilter(*peep))
                             continue;
-                        getGameState().entities.EntitySetFlashing(peep, true);
+                        getGameState().entities.entitySetFlashing(peep, true);
                     }
                     if (!GuestShouldBeVisible(*peep))
                         continue;
@@ -656,7 +657,7 @@ namespace OpenRCT2::Ui::Windows
                     }
 
                     // Guest name
-                    auto peep = getGameState().entities.GetEntity<Guest>(guestItem.Id);
+                    auto peep = getGameState().entities.getEntity<Guest>(guestItem.Id);
                     if (peep == nullptr)
                     {
                         continue;
@@ -677,7 +678,7 @@ namespace OpenRCT2::Ui::Windows
 
                             // Action
                             ft = Formatter();
-                            peep->formatActionTo(ft);
+                            formatPeepActionTo(*peep, ft);
                             drawTextEllipsised(rt, { 133, y }, 314, format, ft);
                             break;
                         case GuestViewType::thoughts:
@@ -867,7 +868,7 @@ namespace OpenRCT2::Ui::Windows
             switch (type)
             {
                 case GuestViewType::actions:
-                    peep.formatActionTo(ft);
+                    formatPeepActionTo(peep, ft, true);
                     break;
                 case GuestViewType::thoughts:
                 {
@@ -911,8 +912,8 @@ namespace OpenRCT2::Ui::Windows
         template<bool TRealNames>
         static bool CompareGuestItem(const GuestItem& a, const GuestItem& b)
         {
-            const auto* peepA = getGameState().entities.GetEntity<Peep>(a.Id);
-            const auto* peepB = getGameState().entities.GetEntity<Peep>(b.Id);
+            const auto* peepA = getGameState().entities.getEntity<Peep>(a.Id);
+            const auto* peepB = getGameState().entities.getEntity<Peep>(b.Id);
             if (peepA != nullptr && peepB != nullptr)
             {
                 // Compare types

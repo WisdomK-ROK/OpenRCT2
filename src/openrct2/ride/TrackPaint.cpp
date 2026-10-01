@@ -86,7 +86,7 @@ bool TrackPaintUtilHasFence(
     enum edge_t edge, const CoordsXY& position, const TrackElement& trackElement, const Ride& ride, uint8_t rotation)
 {
     const auto* stationObject = ride.getStationObject();
-    if (stationObject != nullptr && stationObject->Flags & StationObjectFlags::noPlatforms)
+    if (stationObject != nullptr && stationObject->Flags.has(StationObjectFlag::noPlatforms))
         return false;
 
     TileCoordsXY offset;
@@ -110,14 +110,14 @@ bool TrackPaintUtilHasFence(
     auto entranceId = trackElement.getStationIndex();
     const auto& station = ride.getStation(entranceId);
 
-    return (entranceLoc != station.Entrance && entranceLoc != station.Exit);
+    return (entranceLoc != station.entrance && entranceLoc != station.exit);
 }
 
 void TrackPaintUtilPaintFloor(
     PaintSession& session, uint8_t edges, ImageId colourFlags, uint16_t height, const uint32_t floorSprites[4],
     const StationObject* stationStyle)
 {
-    if (stationStyle != nullptr && stationStyle->Flags & StationObjectFlags::noPlatforms)
+    if (stationStyle != nullptr && stationStyle->Flags.has(StationObjectFlag::noPlatforms))
         return;
 
     uint32_t imageId;
@@ -217,7 +217,7 @@ static bool TrackPaintUtilDrawStationImpl(
     const auto* stationObj = ride.getStationObject();
     const bool hasGreenLight = trackElement.hasGreenLight();
 
-    if (stationObj != nullptr && stationObj->Flags & StationObjectFlags::noPlatforms)
+    if (stationObj != nullptr && stationObj->Flags.has(StationObjectFlag::noPlatforms))
         return false;
 
     bool hasFence;
@@ -431,7 +431,7 @@ bool TrackPaintUtilDrawStationInverted(
     const auto* stationObj = ride.getStationObject();
     const bool hasGreenLight = trackElement.hasGreenLight();
 
-    if (stationObj != nullptr && stationObj->Flags & StationObjectFlags::noPlatforms)
+    if (stationObj != nullptr && stationObj->Flags.has(StationObjectFlag::noPlatforms))
         return false;
 
     auto colour = GetStationColourScheme(session, trackElement);
@@ -698,16 +698,16 @@ bool TrackPaintUtilDrawStationCovers2(
     if (!session.TrackColours.IsRemap())
     {
         imageId = ImageId(shelterImageIndex + imageOffset);
-        if (stationObject->Flags & StationObjectFlags::hasPrimaryColour)
+        if (stationObject->Flags.has(StationObjectFlag::hasPrimaryColour))
             imageId = imageId.WithPrimary(session.TrackColours.GetPrimary());
-        if (stationObject->Flags & StationObjectFlags::hasSecondaryColour)
+        if (stationObject->Flags.has(StationObjectFlag::hasSecondaryColour))
             imageId = imageId.WithSecondary(session.TrackColours.GetSecondary());
     }
 
     PaintAddImageAsParent(session, imageId, offset, boundBox);
 
     // Glass
-    if (colour == TrackStationColour && (stationObject->Flags & StationObjectFlags::isTransparent))
+    if (colour == TrackStationColour && stationObject->Flags.has(StationObjectFlag::isTransparent))
     {
         auto shelterGlassImageIndex = stationObject->shelterGlassIndex;
         imageId = ImageId(shelterGlassImageIndex + imageOffset).WithTransparency(session.TrackColours.GetPrimary());
@@ -722,7 +722,7 @@ bool TrackPaintUtilDrawNarrowStationPlatform(
 {
     CoordsXY position = session.MapPosition;
     const auto* stationObj = ride.getStationObject();
-    if (stationObj != nullptr && stationObj->Flags & StationObjectFlags::noPlatforms)
+    if (stationObj != nullptr && stationObj->Flags.has(StationObjectFlag::noPlatforms))
         return false;
 
     auto colour = GetStationColourScheme(session, trackElement);
@@ -779,7 +779,7 @@ void TrackPaintUtilDrawPier(
     PaintSession& session, const Ride& ride, const StationObject* stationObj, const CoordsXY& position, Direction direction,
     int32_t height, const TrackElement& trackElement, uint8_t rotation)
 {
-    if (stationObj != nullptr && stationObj->Flags & StationObjectFlags::noPlatforms)
+    if (stationObj != nullptr && stationObj->Flags.has(StationObjectFlag::noPlatforms))
         return;
     auto colour = GetStationColourScheme(session, trackElement);
     bool hasFence;
@@ -1873,29 +1873,23 @@ void TrackPaintUtilOnridePhotoPaint(
     }
 }
 
-static constexpr uint16_t RightVerticalLoopSegments[] = {
-    EnumsToFlags(
-        PaintSegment::right, PaintSegment::bottom, PaintSegment::centre, PaintSegment::topRight, PaintSegment::bottomLeft,
-        PaintSegment::bottomRight),
-    EnumsToFlags(
-        PaintSegment::right, PaintSegment::bottom, PaintSegment::centre, PaintSegment::topRight, PaintSegment::bottomLeft,
-        PaintSegment::bottomRight),
-    EnumsToFlags(PaintSegment::bottom, PaintSegment::centre, PaintSegment::bottomLeft, PaintSegment::bottomRight),
-    EnumsToFlags(
-        PaintSegment::right, PaintSegment::bottom, PaintSegment::centre, PaintSegment::topRight, PaintSegment::bottomLeft,
-        PaintSegment::bottomRight),
-    0,
-    0,
-    EnumsToFlags(
-        PaintSegment::top, PaintSegment::left, PaintSegment::centre, PaintSegment::topLeft, PaintSegment::topRight,
-        PaintSegment::bottomLeft),
-    EnumsToFlags(PaintSegment::top, PaintSegment::centre, PaintSegment::topLeft, PaintSegment::topRight),
-    EnumsToFlags(
-        PaintSegment::top, PaintSegment::left, PaintSegment::centre, PaintSegment::topLeft, PaintSegment::topRight,
-        PaintSegment::bottomLeft),
-    EnumsToFlags(
-        PaintSegment::top, PaintSegment::left, PaintSegment::centre, PaintSegment::topLeft, PaintSegment::topRight,
-        PaintSegment::bottomLeft),
+static constexpr PaintSegments RightVerticalLoopSegments[] = {
+    { PaintSegment::right, PaintSegment::bottom, PaintSegment::centre, PaintSegment::topRight, PaintSegment::bottomLeft,
+      PaintSegment::bottomRight },
+    { PaintSegment::right, PaintSegment::bottom, PaintSegment::centre, PaintSegment::topRight, PaintSegment::bottomLeft,
+      PaintSegment::bottomRight },
+    { PaintSegment::bottom, PaintSegment::centre, PaintSegment::bottomLeft, PaintSegment::bottomRight },
+    { PaintSegment::right, PaintSegment::bottom, PaintSegment::centre, PaintSegment::topRight, PaintSegment::bottomLeft,
+      PaintSegment::bottomRight },
+    {},
+    {},
+    { PaintSegment::top, PaintSegment::left, PaintSegment::centre, PaintSegment::topLeft, PaintSegment::topRight,
+      PaintSegment::bottomLeft },
+    { PaintSegment::top, PaintSegment::centre, PaintSegment::topLeft, PaintSegment::topRight },
+    { PaintSegment::top, PaintSegment::left, PaintSegment::centre, PaintSegment::topLeft, PaintSegment::topRight,
+      PaintSegment::bottomLeft },
+    { PaintSegment::top, PaintSegment::left, PaintSegment::centre, PaintSegment::topLeft, PaintSegment::topRight,
+      PaintSegment::bottomLeft },
 };
 
 void TrackPaintUtilRightVerticalLoopSegments(PaintSession& session, Direction direction, uint8_t trackSequence)
@@ -1917,9 +1911,8 @@ void TrackPaintUtilLeftCorkscrewUpSupports(PaintSession& session, Direction dire
     PaintUtilSetSegmentSupportHeight(
         session,
         PaintUtilRotateSegments(
-            EnumsToFlags(
-                PaintSegment::top, PaintSegment::centre, PaintSegment::topLeft, PaintSegment::topRight,
-                PaintSegment::bottomLeft),
+            { PaintSegment::top, PaintSegment::centre, PaintSegment::topLeft, PaintSegment::topRight,
+              PaintSegment::bottomLeft },
             direction),
         0xFFFF, 0);
 }
@@ -1965,13 +1958,13 @@ void PaintTrack(PaintSession& session, Direction direction, int32_t height, cons
     }
 
     if ((!gTrackDesignSaveMode || rideIndex == gTrackDesignSaveRideIndex)
-        && !(session.ViewFlags & VIEWPORT_FLAG_HIGHLIGHT_PATH_ISSUES))
+        && !session.ViewFlags.has(ViewportFlag::highlightPathIssues))
     {
         auto trackType = trackElement.getTrackType();
         int32_t trackSequence = trackElement.getSequenceIndex();
         int32_t trackColourScheme = trackElement.getColourScheme();
 
-        if (PaintShouldShowHeightMarkers(session, VIEWPORT_FLAG_TRACK_HEIGHTS))
+        if (PaintShouldShowHeightMarkers(session, ViewportFlag::trackHeights))
         {
             session.InteractionType = ViewportInteractionItem::none;
             const auto& ted = GetTrackElementDescriptor(trackType);

@@ -520,8 +520,14 @@ ScMap Scripting::gScMap;
 ScNetwork Scripting::gScNetwork;
 ScObjectManager Scripting::gScObjectManager;
 ScInstalledObject Scripting::gScInstalledObject;
+ScSceneryObject Scripting::gScSceneryObject;
+ScSmallSceneryObject Scripting::gScSmallSceneryObject;
 ScLargeSceneryObjectTile Scripting::gScLargeSceneryObjectTile;
+ScLargeSceneryObject Scripting::gScLargeSceneryObject;
+ScFootpathSurfaceObject Scripting::gScFootpathSurfaceObject;
+ScSceneryGroupObject Scripting::gScSceneryGroupObject;
 ScObject Scripting::gScObject;
+ScRideObject Scripting::gScRideObject;
 ScPark Scripting::gScPark;
 ScParkMessage Scripting::gScParkMessage;
 ScPlayer Scripting::gScPlayer;
@@ -564,7 +570,13 @@ void ScriptEngine::RegisterClasses(JSContext* ctx)
     gScObjectManager.Register(ctx);
     gScInstalledObject.Register(ctx);
     gScObject.Register(ctx);
+    gScRideObject.Register(ctx);
+    gScSceneryObject.Register(ctx);
+    gScSmallSceneryObject.Register(ctx);
     gScLargeSceneryObjectTile.Register(ctx);
+    gScLargeSceneryObject.Register(ctx);
+    gScFootpathSurfaceObject.Register(ctx);
+    gScSceneryGroupObject.Register(ctx);
     gScPark.Register(ctx);
     gScParkMessage.Register(ctx);
     gScPlayer.Register(ctx);
@@ -587,6 +599,7 @@ void ScriptEngine::RegisterClasses(JSContext* ctx)
     gScHandyman.Register(ctx);
     gScMechanic.Register(ctx);
     gScSecurity.Register(ctx);
+    gScEntertainer.Register(ctx);
     gScBalloon.Register(ctx);
     gScLitter.Register(ctx);
     gScMoneyEffect.Register(ctx);
@@ -619,7 +632,13 @@ void ScriptEngine::UnregisterClasses()
     gScObjectManager.Unregister();
     gScInstalledObject.Unregister();
     gScObject.Unregister();
+    gScRideObject.Unregister();
+    gScSceneryObject.Unregister();
+    gScSmallSceneryObject.Unregister();
     gScLargeSceneryObjectTile.Unregister();
+    gScLargeSceneryObject.Unregister();
+    gScFootpathSurfaceObject.Unregister();
+    gScSceneryGroupObject.Unregister();
     gScPark.Unregister();
     gScParkMessage.Unregister();
     gScPlayer.Unregister();
@@ -642,6 +661,7 @@ void ScriptEngine::UnregisterClasses()
     gScHandyman.Unregister();
     gScMechanic.Unregister();
     gScSecurity.Unregister();
+    gScEntertainer.Unregister();
     gScBalloon.Unregister();
     gScLitter.Unregister();
     gScMoneyEffect.Unregister();
@@ -824,10 +844,10 @@ std::vector<std::string> ScriptEngine::GetPluginFiles() const
     if (Path::DirectoryExists(base))
     {
         auto pattern = Path::Combine(base, u8"*.js");
-        auto scanner = Path::ScanDirectory(pattern, true);
-        while (scanner->Next())
+        auto scanner = Path::scanDirectory(pattern, true);
+        while (scanner->next())
         {
-            auto path = std::string(scanner->GetPath());
+            auto path = std::string(scanner->getPath());
             if (ShouldLoadScript(path))
             {
                 pluginFiles.push_back(path);
@@ -1484,7 +1504,7 @@ JSValue ScriptEngine::GameActionResultToJS(
     {
         JS_SetPropertyStr(ctx, obj, "cost", JS_NewInt64(ctx, result.cost));
     }
-    if (!result.position.IsNull())
+    if (!result.position.isNull())
     {
         JS_SetPropertyStr(ctx, obj, "position", ToJSValue(ctx, result.position));
     }

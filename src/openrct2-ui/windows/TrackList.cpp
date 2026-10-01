@@ -147,7 +147,7 @@ namespace OpenRCT2::Ui::Windows
                 return;
             }
 
-            if (_loadedTrackDesign->gameStateData.hasFlag(TrackDesignGameStateFlag::sceneryUnavailable))
+            if (_loadedTrackDesign->gameStateData.flags.has(TrackDesignGameStateFlag::sceneryUnavailable))
             {
                 gTrackDesignSceneryToggle = true;
             }
@@ -163,7 +163,7 @@ namespace OpenRCT2::Ui::Windows
             else
             {
                 if (_loadedTrackDesignIndex != kTrackDesignIndexUnloaded
-                    && (_loadedTrackDesign->gameStateData.hasFlag(TrackDesignGameStateFlag::vehicleUnavailable)))
+                    && (_loadedTrackDesign->gameStateData.flags.has(TrackDesignGameStateFlag::vehicleUnavailable)))
                 {
                     ContextShowError(STR_THIS_DESIGN_WILL_BE_BUILT_WITH_AN_ALTERNATIVE_VEHICLE_TYPE, kStringIdNone, {});
                 }
@@ -443,6 +443,7 @@ namespace OpenRCT2::Ui::Windows
             {
                 loadDesignsList(_window_track_list_item);
                 selectedListItem = 0;
+                _loadedTrackDesignIndex = kTrackDesignIndexUnloaded;
                 invalidate();
                 _reloadTrackDesigns = false;
             }
@@ -514,7 +515,7 @@ namespace OpenRCT2::Ui::Windows
             screenPos.y = windowPos.y + tdWidget.bottom - 12;
 
             // Warnings
-            if (_loadedTrackDesign->gameStateData.hasFlag(TrackDesignGameStateFlag::vehicleUnavailable)
+            if (_loadedTrackDesign->gameStateData.flags.has(TrackDesignGameStateFlag::vehicleUnavailable)
                 && gLegacyScene != LegacyScene::trackDesignsManager)
             {
                 // Vehicle design not available
@@ -522,7 +523,7 @@ namespace OpenRCT2::Ui::Windows
                 screenPos.y -= kScrollableRowHeight;
             }
 
-            if (_loadedTrackDesign->gameStateData.hasFlag(TrackDesignGameStateFlag::sceneryUnavailable))
+            if (_loadedTrackDesign->gameStateData.flags.has(TrackDesignGameStateFlag::sceneryUnavailable))
             {
                 if (!gTrackDesignSceneryToggle)
                 {
@@ -650,7 +651,7 @@ namespace OpenRCT2::Ui::Windows
                 screenPos.y += 4;
             }
 
-            if (!_loadedTrackDesign->statistics.spaceRequired.IsNull())
+            if (!_loadedTrackDesign->statistics.spaceRequired.isNull())
             {
                 // Space required
                 ft = Formatter();

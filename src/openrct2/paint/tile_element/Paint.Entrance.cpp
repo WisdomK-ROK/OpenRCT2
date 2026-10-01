@@ -99,7 +99,7 @@ static void PaintRideEntranceExit(PaintSession& session, uint8_t direction, int3
     PROFILED_FUNCTION();
 
     auto rideIndex = entranceEl.getRideIndex();
-    if ((session.ViewFlags & VIEWPORT_FLAG_HIGHLIGHT_PATH_ISSUES)
+    if (session.ViewFlags.has(ViewportFlag::highlightPathIssues)
         || (gTrackDesignSaveMode && rideIndex != gTrackDesignSaveRideIndex))
     {
         return;
@@ -121,7 +121,7 @@ static void PaintRideEntranceExit(PaintSession& session, uint8_t direction, int3
 
     PaintRideEntranceExitLightEffects(session, height, entranceEl);
 
-    auto hasGlass = (stationObj->Flags & StationObjectFlags::isTransparent) != 0;
+    auto hasGlass = stationObj->Flags.has(StationObjectFlag::isTransparent);
     auto colourPrimary = ride->trackColours[0].main;
     auto imageTemplate = ImageId(0);
     ImageId glassImageTemplate;
@@ -141,11 +141,11 @@ static void PaintRideEntranceExit(PaintSession& session, uint8_t direction, int3
     }
     else
     {
-        if (stationObj->Flags & StationObjectFlags::hasPrimaryColour)
+        if (stationObj->Flags.has(StationObjectFlag::hasPrimaryColour))
         {
             imageTemplate = imageTemplate.WithPrimary(colourPrimary);
         }
-        if (stationObj->Flags & StationObjectFlags::hasSecondaryColour)
+        if (stationObj->Flags.has(StationObjectFlag::hasSecondaryColour))
         {
             auto colourSecondary = ride->trackColours[0].additional;
             imageTemplate = imageTemplate.WithSecondary(colourSecondary);
@@ -248,7 +248,7 @@ static void PaintParkEntrance(PaintSession& session, uint8_t direction, int32_t 
 {
     PROFILED_FUNCTION();
 
-    if (gTrackDesignSaveMode || (session.ViewFlags & VIEWPORT_FLAG_HIGHLIGHT_PATH_ISSUES))
+    if (gTrackDesignSaveMode || session.ViewFlags.has(ViewportFlag::highlightPathIssues))
         return;
 
     PaintParkEntranceLightEffects(session);
@@ -321,7 +321,7 @@ static void PaintHeightMarkers(PaintSession& session, const EntranceElement& ent
 {
     PROFILED_FUNCTION();
 
-    if (PaintShouldShowHeightMarkers(session, VIEWPORT_FLAG_PATH_HEIGHTS))
+    if (PaintShouldShowHeightMarkers(session, ViewportFlag::pathHeights))
     {
         if (entranceEl.getDirections() & 0xF)
         {

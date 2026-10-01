@@ -458,7 +458,7 @@ namespace OpenRCT2::Ui::Windows
             TileElement* tileElement;
             gMapSelectFlags.unset(MapSelectFlag::enable, MapSelectFlag::enableArrow);
             auto mapCoords = FootpathBridgeGetInfoFromPos(screenCoords, &direction, &tileElement);
-            if (mapCoords.IsNull())
+            if (mapCoords.isNull())
                 return;
 
             int32_t mapZ = tileElement->getBaseZ();
@@ -484,7 +484,7 @@ namespace OpenRCT2::Ui::Windows
             TileElement* tileElement;
             int32_t direction;
             auto mapCoords = FootpathGetCoordinatesFromPos(screenCoords, &direction, &tileElement);
-            if (mapCoords.IsNull())
+            if (mapCoords.isNull())
                 return;
 
             int32_t mapZ = tileElement->getBaseZ();
@@ -853,7 +853,10 @@ namespace OpenRCT2::Ui::Windows
             auto colour = ColourPair(PaletteIndex::transparent);
             const auto* surfaceObject = surfaceElement->getSurfaceObject();
             if (surfaceObject != nullptr)
-                colour = ColourPair(surfaceObject->MapColours[0], surfaceObject->MapColours[1]);
+            {
+                auto mapColour = surfaceObject->getMapColours(surfaceElement->getPrimarySurfaceColour());
+                colour = ColourPair(mapColour[0], mapColour[1]);
+            }
 
             if (surfaceElement->getWaterHeight() > 0)
                 colour = kWaterColour;
@@ -977,7 +980,7 @@ namespace OpenRCT2::Ui::Windows
             auto leftTop = ScreenCoordsXY{ c.x, c.y } + offset;
             auto rightBottom = leftTop;
             auto colour = DefaultPeepMapColour;
-            if (getGameState().entities.EntityGetFlashing(peep))
+            if (getGameState().entities.entityGetFlashing(peep))
             {
                 colour = flashColour;
                 // If flashing then map peep pixel size is increased (by moving left top downwards)
@@ -1019,7 +1022,7 @@ namespace OpenRCT2::Ui::Windows
             for (auto train : TrainManager::View())
             {
                 for (Vehicle* vehicle = train; vehicle != nullptr;
-                     vehicle = getGameState().entities.GetEntity<Vehicle>(vehicle->next_vehicle_on_train))
+                     vehicle = getGameState().entities.getEntity<Vehicle>(vehicle->next_vehicle_on_train))
                 {
                     if (vehicle->x == kLocationNull)
                         continue;
@@ -1138,7 +1141,7 @@ namespace OpenRCT2::Ui::Windows
         {
             screenCoords.x = ((screenCoords.x + 8) - getPracticalMapSize()) / 2;
             screenCoords.y = ((screenCoords.y + 8)) / 2;
-            auto location = TileCoordsXY(screenCoords.y - screenCoords.x, screenCoords.x + screenCoords.y).ToCoordsXY();
+            auto location = TileCoordsXY(screenCoords.y - screenCoords.x, screenCoords.x + screenCoords.y).toCoordsXY();
 
             switch (GetCurrentRotation())
             {

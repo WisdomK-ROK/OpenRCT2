@@ -93,9 +93,6 @@ namespace OpenRCT2::Ui::Windows
     // EditorInventionsList
     WindowBase* EditorInventionsListOpen();
 
-    // EditorBottomToolbar
-    WindowBase* EditorBottomToolbarOpen();
-
     // EditorObjectSelection
     WindowBase* EditorObjectSelectionOpen();
     bool EditorObjectSelectionWindowCheck();
@@ -106,6 +103,12 @@ namespace OpenRCT2::Ui::Windows
 
     // EditorScenarioOptions
     WindowBase* EditorScenarioOptionsOpen();
+
+    // EditorStatusLine
+    WindowBase* editorStatusLineOpen();
+
+    // EditorStepController
+    WindowBase* editorStepControllerOpen();
 
     // Error
     WindowBase* ErrorOpen(StringId title, StringId message, const class Formatter& formatter, bool autoClose = false);
@@ -128,9 +131,8 @@ namespace OpenRCT2::Ui::Windows
     void WindowFootpathKeyboardShortcutDemolishCurrent();
     bool WindowFootpathSelectDefault();
 
-    // GameBottomToolbar
-    WindowBase* GameBottomToolbarOpen();
-    void WindowGameBottomToolbarInvalidateNewsItem();
+    // GameStatusBar
+    WindowBase* gameStatusBarOpen();
 
     // Guest
     WindowBase* GuestOpen(Peep* peep);
@@ -191,6 +193,10 @@ namespace OpenRCT2::Ui::Windows
 
     // News
     WindowBase* NewsOpen();
+
+    // NewsTicker
+    WindowBase* newsTickerOpen();
+    void newsTickerInvalidateNewsItem();
 
     // NetworkStatus
     WindowBase* NetworkStatusOpen(const std::string& text, CloseCallback onClose);

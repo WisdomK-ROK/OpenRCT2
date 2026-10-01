@@ -540,7 +540,7 @@ namespace OpenRCT2::Ui::Windows
             auto viewport = w.viewport;
             if (viewport != nullptr)
             {
-                if (viewport->flags & VIEWPORT_FLAG_SOUND_ON)
+                if (viewport->flags.has(ViewportFlag::soundOn))
                 {
                     return &w;
                 }
@@ -616,6 +616,14 @@ namespace OpenRCT2::Ui::Windows
     void SetTexboxSession(TextInputSession* session)
     {
         _textInput = session;
+    }
+    void SetTextboxCaret(size_t position)
+    {
+        if (_textInput != nullptr)
+        {
+            _textInput->SelectionStart = std::clamp<size_t>(position, 0, _textInput->Length);
+            _textInput->SelectionSize = 0;
+        }
     }
     bool IsUsingWidgetTextBox()
     {
